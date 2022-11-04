@@ -1,0 +1,45 @@
+#!/bin/bash
+
+title=$(eval echo "$1")
+if [ "$title" == '' ]; then
+  echo -e "please enter your article title!"
+  exit 1
+fi
+path_key="target_path"
+name_key="account_name"
+qrcode_key="account_qrcode"
+conf_name="./writer_helper.conf"
+default_path="${HOME}"
+default_link="LS0tCuasoui/juWFs+azqOaIkeeahOWFrOS8l+WPt+KAnCoq55+z6ams6Z2e56CBKirigJ3vvIzljp/liJvmioDmnK/mlofnq6DnrKzkuIDml7bpl7TmjqjpgIHjgIIKPGNlbnRlcj4KICAgIDxpbWcgc3JjPSJodHRwczovL2trLXBpY3R1cmVzLWJ1Y2tldC5vc3MtY24taGFuZ3pob3UuYWxpeXVuY3MuY29tL3dlY2hhdC9xcmNvZGVfZm9yX2doXzg0NTBlZjhhODhlZV80MzAuanBnIiBzdHlsZT0id2lkdGg6IDEwMHB4OyI+CjwvY2VudGVyPgo="
+# read local conf file
+if [ -f "$conf_name" ]; then
+  # parse local conf file and get target path.
+  target_path=$(cat $conf_name | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'${path_key}'\042/){print $(i+1)}}}' | tr -d '"' | tr -d ' ')
+  account_name=$(cat $conf_name | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'${name_key}'\042/){print $(i+1)}}}' | tr -d '"' | tr -d ' ')
+  qrcode_link=$(cat $conf_name | awk -F"[,:}]" -va="" '{for(i=1;i<=NF;i++){if($i~/'${qrcode_key}'\042/){print $(i+1)":"$(i+2)}}}' | tr -d '"' | tr -d ' ')
+else
+  echo -e "writer_helper.conf file does not exist,use default path and link!"
+fi
+# if local conf file is null,default target path will be your home path.
+if [ "$target_path" == '' ]; then
+  target_path=$default_path
+fi
+if [ "$account_name" == '' ] || [ "$qrcode_link" == '' ]; then
+  wechat_link=$default_link
+fi
+final_content="---\n""欢迎关注我的公众号“**$account_name**”，原创文章第一时间推送。\n""<center>\n""    <img src=\"$qrcode_link\" style=\"width: 100px;\">\n""</center>"
+if [ "$wechat_link" == '' ]; then
+  wechat_link=$(echo -e "$final_content" | base64)
+fi
+generate_path="${target_path}""/$title"
+if [ ! -d "$generate_path" ]; then
+  # generate target directory, markdown file and insert your wechat public account sharing links.
+  mkdir "$generate_path"
+  touch "$generate_path""/$title"".md"
+  echo -e "# $title""\n""$(echo "${wechat_link}" | base64 --decode)" >"$generate_path""/$title"".md"
+else
+  echo -e "$title directory exists!"
+fi
+echo -e "Your file path: $generate_path"
+echo -e "Your file name: $title.md"
+open "$generate_path"

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.xiang.tools.writer_helper</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>50B0CD10-4D52-4898-9C05-DD3A34A829C3</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B4E6B596-02A6-487F-94CC-C3435E48B962</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>B4E6B596-02A6-487F-94CC-C3435E48B962</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>7E00B040-5F43-4C96-A6F7-B3BFA26FDCE8</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>石马非码</string>
+	<key>description</key>
+	<string>Automatically generate markdown articles for you, and insert WeChat public account sharing links.</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>writer helper</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Your markdown file has been generated！！</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>7E00B040-5F43-4C96-A6F7-B3BFA26FDCE8</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>wh</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>The article template is being generated...</string>
+				<key>script</key>
+				<string>#! /bin/bash
+#
+# writer helper
+# created by 石马非码
+#
+title=$(echo -e "$(eval echo "$1")" | sed -e 's/[]\/$*.^[]/\\&amp;/g')
+conf_name="./writer_helper.conf"
+path_key="target_path"
+target_path="${HOME}"
+if [ "$title" == '' ]; then
+  title="Your article title can not be null!"
+  subtitle="Please enter your article title!"
+  my_arg=""
+else
+  if [ -f "$conf_name" ]; then
+    target_path=$(cat $conf_name | awk -F"[,:}]" '{for(i=1;i&lt;=NF;i++){if($i~/'${path_key}'\042/){print $(i+1)}}}' | tr -d '"' | tr -d ' ')
+  fi
+  subtitle="will create directory and article in the $target_path"
+  my_arg="$title"
+fi
+echo '{"items": ['
+echo '{'
+echo '"title"': \"${title}\",
+echo '"subtitle"': \"${subtitle}\",
+echo '"arg"': \"${my_arg}\"
+echo '}'
+echo ']}'</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string>test.sh</string>
+				<key>subtext</key>
+				<string>Please enter your article title</string>
+				<key>title</key>
+				<string>writer helper</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>50B0CD10-4D52-4898-9C05-DD3A34A829C3</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>#!/bin/bash
+./writer_helper "{query}"</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>B4E6B596-02A6-487F-94CC-C3435E48B962</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>The writer helper is designed to help blog writers create blog markdown articles better and faster, so that writers can focus on the writing content itself.
+
+You only need to enter the title of the article, and it can help you create the article directory and markdown file with the article title and WeChat public account sharing tail chain through workflow.</string>
+	<key>uidata</key>
+	<dict>
+		<key>50B0CD10-4D52-4898-9C05-DD3A34A829C3</key>
+		<dict>
+			<key>note</key>
+			<string>wh = writer helper</string>
+			<key>xpos</key>
+			<integer>70</integer>
+			<key>ypos</key>
+			<integer>55</integer>
+		</dict>
+		<key>7E00B040-5F43-4C96-A6F7-B3BFA26FDCE8</key>
+		<dict>
+			<key>xpos</key>
+			<integer>515</integer>
+			<key>ypos</key>
+			<integer>55</integer>
+		</dict>
+		<key>B4E6B596-02A6-487F-94CC-C3435E48B962</key>
+		<dict>
+			<key>xpos</key>
+			<integer>290</integer>
+			<key>ypos</key>
+			<integer>55</integer>
+		</dict>
+	</dict>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>1.0</string>
+	<key>webaddress</key>
+	<string>https://mp.weixin.qq.com/mp/profile_ext?action=home&amp;__biz=Mzg4MjMxOTMxOA==&amp;scene=124#wechat_redirect</string>
+</dict>
+</plist>
